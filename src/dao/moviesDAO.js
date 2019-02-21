@@ -242,10 +242,15 @@ export default class MoviesDAO {
     let { query = {}, project = {}, sort = DEFAULT_SORT } = queryParams
     let cursor
     try {
-      cursor = await movies
+      cursor = movies
         .find(query)
         .project(project)
         .sort(sort)
+        .skip(page * moviesPerPage)
+        .limit(moviesPerPage)
+      let moviesArray = await cursor.toArray()
+      let count = await cursor.count()
+      return { moviesList: moviesArray, totalNumMovies: count }
     } catch (e) {
       console.error(`Unable to issue find command, ${e}`)
       return { moviesList: [], totalNumMovies: 0 }
